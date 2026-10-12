@@ -42,8 +42,9 @@ Configure these secrets in the public `servlet-release` environment:
 | `APPLE_CERTIFICATE_BASE64` | Base64 PKCS#12 of the Developer ID Application certificate and private key |
 | `APPLE_CERTIFICATE_PASSWORD` | PKCS#12 export password |
 | `APPLE_APP_SPECIFIC_PASSWORD` | Apple notarization credential |
+| `APPLE_ID` | Apple account email, kept private as a secret |
 
-Set environment variables `APPLE_TEAM_ID=8V3C66NC5Z`, `APPLE_SIGNING_IDENTITY=Developer ID Application: Hameed Goudat (8V3C66NC5Z)`, and `APPLE_ID` to the Apple ID used for notarization. Signing material is imported into an ephemeral Keychain and removed even when a release fails. Signing keys and private staging are never uploaded as CI artifacts.
+Set environment variables `APPLE_TEAM_ID=8V3C66NC5Z`, `APPLE_SIGNING_IDENTITY=Developer ID Application: Hameed Goudat (8V3C66NC5Z)`. Signing material is imported into an ephemeral Keychain and removed even when a release fails. Signing keys and private staging are never uploaded as CI artifacts.
 
 Set repository variable `RELEASE_BRIDGE_ENABLED=true` only after setup. It starts as false. Merge the private build/updater changes, create a matching `v<package-version>` tag on private main, wait for all builds to pass, and approve the resulting public release job. The private source repository remains private throughout.
 

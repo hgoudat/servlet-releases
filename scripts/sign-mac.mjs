@@ -122,6 +122,42 @@ execFileSync("spctl", [
   "context:primary-signature",
   dmg,
 ]);
+const checkDir = fs.mkdtempSync(path.resolve("release", "installer-check-"));
+const mount = path.join(checkDir, "mounted");
+fs.mkdirSync(mount);
+try {
+  execFileSync("hdiutil", [
+    "attach",
+    dmg,
+    "-readonly",
+    "-nobrowse",
+    "-mountpoint",
+    mount,
+  ]);
+  try {
+    execFileSync("codesign", [
+      "--verify",
+      "--deep",
+      "--strict",
+      path.join(mount, "Servlet.app"),
+    ]);
+    execFileSync("spctl", [
+      "--assess",
+      "--type",
+      "execute",
+      path.join(mount, "Servlet.app"),
+    ]);
+    execFileSync("xcrun", [
+      "stapler",
+      "validate",
+      path.join(mount, "Servlet.app"),
+    ]);
+  } finally {
+    execFileSync("hdiutil", ["detach", mount]);
+  }
+} finally {
+  fs.rmSync(checkDir, { recursive: true, force: true });
+}
 fs.writeFileSync(
   path.join(out, "mac.json"),
   JSON.stringify(

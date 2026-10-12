@@ -77,6 +77,8 @@ async function discover() {
       "Configure PRIVATE_ARTIFACT_READ_TOKEN with only private repository Actions read access.",
     );
   const explicit = process.env.PRIVATE_RUN_ID;
+  if (explicit && !/^\d+$/.test(explicit))
+    throw Error("Private run ID must contain only digits.");
   const runs = explicit
     ? [source(`actions/runs/${explicit}`)]
     : source(
@@ -103,7 +105,16 @@ async function discover() {
       continue;
     const candidate = await fetchRun(run.id);
     const existing = release(candidate.tag);
-    if (existing && !existing.draft) {
+    const pointer = currentPointer();
+    if (pointer.versions.some((v) => newer(v, candidate.version))) {
+      output("needed", "false");
+      return;
+    }
+    if (
+      existing &&
+      !existing.draft &&
+      pointer.manifest.source?.runId === candidate.runId
+    ) {
       output("needed", "false");
       return;
     }
@@ -178,6 +189,20 @@ async function publish() {
       saved.source?.headSHA !== candidate.headSHA
     )
       throw Error("Published version belongs to a different source build.");
+    for (const entry of saved.releases.filter((r) => r.available)) {
+      const records =
+        entry.platform === "darwin"
+          ? [
+              { url: entry.url, size: entry.dmgSize, sha256: entry.dmgSHA256 },
+              {
+                url: entry.zipURL,
+                size: entry.zipSize,
+                sha256: entry.zipSHA256,
+              },
+            ]
+          : [{ url: entry.url, size: entry.size, sha256: entry.sha256 }];
+      for (const record of records) await verifyPublic(record.url, record);
+    }
     await promote(saved, previous);
     return;
   }
