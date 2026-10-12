@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "source": null,
+  "releases": [
+    {
+      "platform": "darwin",
+      "architecture": "arm64",
+      "available": false,
+      "validated": false,
+      "notarized": false,
+      "message": "Signed Mac releases are being prepared."
+    },
+    {
+      "platform": "linux",
+      "architecture": "x64",
+      "available": false,
+      "validated": false,
+      "message": "Linux release validation is in progress."
+    },
+    {
+      "platform": "win32",
+      "architecture": "x64",
+      "available": false,
+      "validated": false,
+      "signed": false,
+      "message": "Windows signing is pending organization verification."
+    }
+  ]
+}
