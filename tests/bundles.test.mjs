@@ -48,10 +48,13 @@ function bundle(
 }
 test("only successful runs from the intended private release workflow are eligible", () => {
   validateRun(run, config);
+  validateRun({ ...run, event: "workflow_dispatch", head_branch: "main" }, config);
   for (const patch of [
     { conclusion: "failure" },
     { status: "in_progress" },
     { event: "pull_request" },
+    { event: "workflow_dispatch", head_branch: "agent/unreviewed-workflow" },
+    { event: "workflow_dispatch" },
     { path: ".github/workflows/other.yml" },
     { repository: { id: 1, full_name: config.sourceRepository } },
   ])
@@ -72,6 +75,7 @@ test("build validation rejects preview-only provenance, changed bytes, extra sou
     { nativeValidated: false },
     { runId: 124 },
     { workflowHeadSHA: "b".repeat(40) },
+    { headSHA: "b".repeat(40) },
   ])
     assert.throws(() =>
       validateBundle({ ...b, ...patch }, run, config, "darwin", root),
