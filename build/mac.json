@@ -1,0 +1,14 @@
+{
+  "appId": "com.servlet.desktop",
+  "productName": "Servlet",
+  "electronVersion": "44.7.0",
+  "directories": { "output": "release/public" },
+  "artifactName": "Servlet-${version}-arm64.${ext}",
+  "mac": {
+    "target": ["dmg", "zip"],
+    "identity": null,
+    "hardenedRuntime": true,
+    "notarize": false,
+    "icon": "build/icon.icns"
+  }
+}
