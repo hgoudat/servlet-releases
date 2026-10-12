@@ -60,7 +60,7 @@ export function validateBundle(m, run, config, platform, folder) {
       `^Servlet-${m.version.replaceAll(".", "\\.")}-win-x64\\.exe$`,
     ),
     linux: new RegExp(
-      `^Servlet-${m.version.replaceAll(".", "\\.")}-linux-x64\\.(deb|AppImage)$`,
+      `^Servlet-${m.version.replaceAll(".", "\\.")}-linux-(amd64\\.deb|x86_64\\.AppImage)$`,
     ),
   };
   for (const file of m.artifacts) {

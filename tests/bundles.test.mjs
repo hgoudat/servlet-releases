@@ -107,10 +107,38 @@ test("build validation rejects preview-only provenance, changed bytes, extra sou
     ),
   );
 });
+test("Linux validation accepts native package names and rejects mismatched formats or architectures", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "servlet-linux-test-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const filenames = [
+    "Servlet-0.11.3-linux-amd64.deb",
+    "Servlet-0.11.3-linux-x86_64.AppImage",
+  ];
+  const b = bundle("linux", filenames[0]);
+  b.artifacts.push(bundle("linux", filenames[1]).artifacts[0]);
+  for (const filename of filenames)
+    fs.writeFileSync(path.join(root, filename), "compiled-test-fixture");
+  fs.writeFileSync(path.join(root, "bundle.json"), JSON.stringify(b));
+  validateBundle(b, run, config, "linux", root);
+  for (const filename of [
+    "Servlet-0.11.3-linux-x86_64.deb",
+    "Servlet-0.11.3-linux-amd64.AppImage",
+    "Servlet-0.11.3-linux-arm64.deb",
+    "Servlet-0.11.4-linux-amd64.deb",
+    "../Servlet-0.11.3-linux-amd64.deb",
+  ])
+    assert.throws(
+      () => validateBundle({
+        ...b,
+        artifacts: [{ ...b.artifacts[0], filename }],
+      }, run, config, "linux", root),
+      /Unexpected staged artifact/,
+    );
+});
 test("platform builds share a source commit; Windows stays withheld while signed Mac and Linux are published", () => {
   const builds = [
     bundle("darwin", "Servlet-0.11.3-unsigned-arm64.zip"),
-    bundle("linux", "Servlet-0.11.3-linux-x64.deb"),
+    bundle("linux", "Servlet-0.11.3-linux-amd64.deb"),
     bundle("win32", "Servlet-0.11.3-win-x64.exe"),
   ];
   matchBundles(builds);
