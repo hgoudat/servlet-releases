@@ -1,0 +1,86 @@
+name: Publish reviewed desktop release
+run-name: "Desktop release bridge ${{ inputs.private_run_id }}"
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+    inputs:
+      private_run_id:
+        description: "Completed private release build run ID, or blank to discover the newest candidate"
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: servlet-public-release
+  cancel-in-progress: false
+jobs:
+  discover:
+    if: github.ref == 'refs/heads/main' && vars.RELEASE_BRIDGE_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    outputs:
+      needed: ${{ steps.candidate.outputs.needed }}
+      run_id: ${{ steps.candidate.outputs.run_id }}
+      version: ${{ steps.candidate.outputs.version }}
+      head_sha: ${{ steps.candidate.outputs.head_sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: { node-version: 22 }
+      - name: Find validated private release candidates
+        id: candidate
+        run: node scripts/bridge.mjs discover
+        env:
+          PRIVATE_RUN_ID: ${{ inputs.private_run_id }}
+          PRIVATE_ARTIFACT_READ_TOKEN: ${{ secrets.PRIVATE_ARTIFACT_READ_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+  publish:
+    if: needs.discover.outputs.needed == 'true'
+    needs: discover
+    name: "Approve Servlet ${{ needs.discover.outputs.version }} from ${{ needs.discover.outputs.head_sha }}"
+    environment: servlet-release
+    runs-on: macos-15
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - name: Fetch and verify the approved private artifacts
+        id: candidate
+        run: node scripts/bridge.mjs fetch
+        env:
+          PRIVATE_RUN_ID: ${{ needs.discover.outputs.run_id }}
+          PRIVATE_ARTIFACT_READ_TOKEN: ${{ secrets.PRIVATE_ARTIFACT_READ_TOKEN }}
+      - name: Import ephemeral signing credentials
+        if: steps.candidate.outputs.already_published != 'true'
+        run: python3 scripts/ci-mac-credentials.py
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_NOTARY_AUTH: apple-id
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      - name: Sign, notarize, staple and assess Mac artifacts
+        if: steps.candidate.outputs.already_published != 'true'
+        run: node scripts/sign-mac.mjs
+        env:
+          SERVLET_SIGNING_IDENTITY: ${{ vars.APPLE_SIGNING_IDENTITY }}
+          SERVLET_NOTARY_PROFILE: servlet-ci
+      - name: Publish immutable installers and promote app update metadata
+        run: node scripts/bridge.mjs publish
+      - name: Remove credentials and private staging
+        if: always()
+        run: |
+          security default-keychain -d user -s login.keychain-db || true
+          security delete-keychain "$RUNNER_TEMP/servlet.keychain-db" || true
+          rm -f "$RUNNER_TEMP/servlet-signing.p12" "$RUNNER_TEMP/servlet-notary.p8" "$RUNNER_TEMP/servlet-developer-id-g2.cer"
+          rm -rf staging

@@ -1,0 +1,8 @@
+{
+  "sourceRepository": "hgoudat/servlet-desktop",
+  "sourceRepositoryId": 1415639241,
+  "sourceWorkflow": "desktop-release-build.yml",
+  "distributionRepository": "hgoudat/servlet-releases",
+  "appleTeamId": "8V3C66NC5Z",
+  "electronVersion": "44.7.0"
+}
