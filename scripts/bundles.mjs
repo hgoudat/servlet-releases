@@ -21,6 +21,7 @@ export function validateRun(run, config) {
     run.status !== "completed" ||
     run.conclusion !== "success" ||
     !["push", "workflow_dispatch"].includes(run.event) ||
+    (run.event === "workflow_dispatch" && run.head_branch !== "main") ||
     run.path?.split("@")[0] !== `.github/workflows/${config.sourceWorkflow}` ||
     !/^[a-f0-9]{40}$/.test(run.head_sha)
   )
@@ -37,6 +38,7 @@ export function validateBundle(m, run, config, platform, folder) {
     m.runId !== run.id ||
     m.workflowHeadSHA !== run.head_sha ||
     !/^[a-f0-9]{40}$/.test(m.headSHA) ||
+    (run.event === "push" && m.headSHA !== run.head_sha) ||
     !versionOK(m.version) ||
     m.tag !== `v${m.version}` ||
     m.platform !== platform ||
