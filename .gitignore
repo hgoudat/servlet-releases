@@ -1,0 +1,9 @@
+node_modules/
+.local/
+staging/
+release/
+*.p12
+*.p8
+*.key
+.env
+__pycache__/
