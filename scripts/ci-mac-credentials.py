@@ -15,10 +15,19 @@ def required(name):
         raise SystemExit(f"Missing GitHub environment setting: {name}")
     return value
 
-def run(args):
+def run(args, *, allow_existing_certificate=False):
     result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode:
-        raise SystemExit(f"Credential setup failed in {args[0]}. Check certificate and notarization credentials.")
+        if (
+            allow_existing_certificate
+            and args[:2] == ["security", "import"]
+            and result.returncode == 1
+            and result.stderr.strip()
+            == b"security: SecKeychainItemImport: The specified item already exists in the keychain."
+        ):
+            return
+        operation = " ".join(args[:2])
+        raise SystemExit(f"Credential setup failed during {operation}. Check certificate and notarization credentials.")
 
 certificate = root / "servlet-signing.p12"
 certificate.write_bytes(base64.b64decode(required("APPLE_CERTIFICATE_BASE64"), validate=True))
@@ -31,7 +40,7 @@ run(["security", "import", str(certificate), "-P", required("APPLE_CERTIFICATE_P
 intermediate = root / "servlet-developer-id-g2.cer"
 with urllib.request.urlopen("https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer", timeout=30) as response:
     intermediate.write_bytes(response.read())
-run(["security", "import", str(intermediate), "-k", str(keychain)])
+run(["security", "import", str(intermediate), "-k", str(keychain)], allow_existing_certificate=True)
 run(["security", "set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-s", "-k", password, str(keychain)])
 run(["security", "list-keychains", "-d", "user", "-s", str(keychain)])
 run(["security", "default-keychain", "-d", "user", "-s", str(keychain)])
