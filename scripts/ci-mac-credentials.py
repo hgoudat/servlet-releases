@@ -2,6 +2,7 @@
 import base64
 import os
 from pathlib import Path
+import re
 import secrets
 import subprocess
 import urllib.request
@@ -15,6 +16,23 @@ def required(name):
         raise SystemExit(f"Missing GitHub environment setting: {name}")
     return value
 
+def notarization_failure(result):
+    # Match provider responses privately and return only fixed diagnostic text.
+    output = (result.stdout + result.stderr).decode("utf-8", errors="replace").lower()
+    if re.search(r"http (?:status(?: code)?[: ]*|error[: ]*)401\b", output) or "invalid credentials" in output:
+        return "Apple rejected notarization authentication (HTTP 401). Check APPLE_ID and an app-specific password for that same account."
+    if re.search(r"http (?:status(?: code)?[: ]*|error[: ]*)403\b", output):
+        return "Apple rejected notarization access (HTTP 403). Check access to the configured developer team."
+    if "agreement" in output:
+        return "Apple requires attention to the developer account agreement before notarization."
+    if any(text in output for text in ["error storing", "error saving", "failed to save", "specified keychain", "specified logon session"]):
+        return "macOS could not store the notarization profile in the temporary Keychain."
+    if any(text in output for text in ["timed out", "connection", "resolve host", "nsurlerrordomain"]):
+        return "The runner could not connect to Apple's notarization service."
+    if re.search(r"http (?:status(?: code)?[: ]*|error[: ]*)5\d\d\b", output):
+        return "Apple's notarization service returned a server error."
+    return "Notarization credential validation failed with an unclassified provider response. Private response contents were withheld."
+
 def run(args, *, allow_existing_certificate=False):
     result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode:
@@ -26,6 +44,8 @@ def run(args, *, allow_existing_certificate=False):
             == b"security: SecKeychainItemImport: The specified item already exists in the keychain."
         ):
             return
+        if args[:3] == ["xcrun", "notarytool", "store-credentials"]:
+            raise SystemExit(notarization_failure(result))
         operation = " ".join(args[:2])
         raise SystemExit(f"Credential setup failed during {operation}. Check certificate and notarization credentials.")
 
@@ -53,6 +73,6 @@ if (os.environ.get("APPLE_NOTARY_AUTH") or "apple-id") == "api-key":
     api_key.chmod(0o600)
     args += ["--key", str(api_key), "--key-id", required("APPLE_API_KEY_ID"), "--issuer", required("APPLE_API_ISSUER")]
 else:
-    args += ["--apple-id", required("APPLE_ID"), "--team-id", required("APPLE_TEAM_ID"), "--password", required("APPLE_APP_SPECIFIC_PASSWORD")]
+    args += ["--apple-id", required("APPLE_ID").strip(), "--team-id", required("APPLE_TEAM_ID").strip(), "--password", required("APPLE_APP_SPECIFIC_PASSWORD").strip()]
 run(args)
 print("Temporary signing identity and notarization profile validated.")
