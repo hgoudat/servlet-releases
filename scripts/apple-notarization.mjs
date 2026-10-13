@@ -1,6 +1,45 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
+
+async function runStapler(action, file, {
+  run = execFileSync,
+  wait = delay,
+  retryDelays = [5000, 15000, 30000, 60000],
+  log = console.log,
+} = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      run("xcrun", ["stapler", action, file], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      return;
+    } catch (error) {
+      if (error.status === 68 && attempt < retryDelays.length) {
+        const milliseconds = retryDelays[attempt];
+        log(`Apple ticket service returned exit 68 during ${action}; retry ${attempt + 1}/${retryDelays.length} in ${milliseconds / 1000}s.`);
+        await wait(milliseconds);
+        continue;
+      }
+      const output = [error.stdout, error.stderr]
+        .map((value) => value?.toString().trim())
+        .filter(Boolean)
+        .join("\n");
+      throw Error(`stapler ${action} failed with exit ${error.status ?? "unknown"} for ${path.basename(file)}.\n${output}`);
+    }
+  }
+}
+
+export async function validateStapledTicket(file, options) {
+  await runStapler("validate", file, options);
+}
+
+export async function stapleAndValidate(file, options) {
+  await runStapler("staple", file, options);
+  await validateStapledTicket(file, options);
+}
 
 export function checkSigningIdentity(identities, identity, teamId) {
   if (!/^[A-Z0-9]{10}$/.test(teamId || ""))

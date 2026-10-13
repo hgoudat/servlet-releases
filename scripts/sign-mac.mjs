@@ -6,6 +6,8 @@ import { extractFile } from "@electron/asar";
 import {
   checkSigningIdentity,
   notarizeArchive,
+  stapleAndValidate,
+  validateStapledTicket,
 } from "./apple-notarization.mjs";
 import { sha256 } from "./bundles.mjs";
 const config = JSON.parse(fs.readFileSync("bridge-config.json"));
@@ -75,8 +77,7 @@ const appResult = notarizeArchive(
   profile,
   path.resolve("release/notarization"),
 );
-execFileSync("xcrun", ["stapler", "staple", app]);
-execFileSync("xcrun", ["stapler", "validate", app]);
+await stapleAndValidate(app);
 const pkg = JSON.parse(fs.readFileSync("package.json"));
 pkg.version = bundle.version;
 fs.writeFileSync("package.json", JSON.stringify(pkg));
@@ -111,8 +112,7 @@ const dmgResult = notarizeArchive(
   profile,
   path.resolve("release/notarization"),
 );
-execFileSync("xcrun", ["stapler", "staple", dmg]);
-execFileSync("xcrun", ["stapler", "validate", dmg]);
+await stapleAndValidate(dmg);
 execFileSync("spctl", ["--assess", "--type", "execute", app]);
 execFileSync("spctl", [
   "--assess",
@@ -147,11 +147,7 @@ try {
       "execute",
       path.join(mount, "Servlet.app"),
     ]);
-    execFileSync("xcrun", [
-      "stapler",
-      "validate",
-      path.join(mount, "Servlet.app"),
-    ]);
+    await validateStapledTicket(path.join(mount, "Servlet.app"));
   } finally {
     execFileSync("hdiutil", ["detach", mount]);
   }
