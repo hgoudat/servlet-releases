@@ -2,61 +2,61 @@
   "schemaVersion": 1,
   "source": {
     "repository": "hgoudat/servlet-desktop",
-    "runId": 38446938677,
-    "headSHA": "569880f6177018379bdf3db1ef5528802b70c596"
+    "runId": 38454511400,
+    "headSHA": "dc4b18a2d29a9cbd1d30e19ff712728685e3af07"
   },
   "releases": [
     {
       "available": true,
-      "version": "0.12.2",
+      "version": "0.13.0",
       "architecture": "arm64",
       "minimumMacOS": "13",
       "notarized": true,
       "teamId": "8V3C66NC5Z",
       "notarization": {
-        "app": "903c186c-d503-4983-82e2-bba5f01345d5",
-        "dmg": "882f48c7-f2ce-44bc-b7be-8b1764a71d08"
+        "app": "6e6e4f9e-b061-46ff-a4d2-80015bf4e2ad",
+        "dmg": "fd4f48dd-0da1-49c1-801e-484755d41ac1"
       },
-      "zipSHA256": "c270f612db271dfc024c2e719948bb263de9b26797dd595b06784863aa34b36c",
-      "zipSize": 151989070,
-      "dmgSHA256": "6bc5773c0c350ffd6ce64bb3a5f0002eb8dd304327c46410fc9a279c4e33b714",
-      "dmgSize": 152524814,
+      "zipSHA256": "0b8f80e031d1e9ba94bc202eb8a44e053a319f673c56d4ef9c979dba003427a8",
+      "zipSize": 151909373,
+      "dmgSHA256": "c34f484caf7f323992a718152d3460e8857d6c665f57b64f1745a7a4b04864f7",
+      "dmgSize": 152442705,
       "platform": "darwin",
       "signed": true,
       "validated": true,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.12.2/Servlet-0.12.2-arm64.dmg",
-      "zipURL": "https://github.com/hgoudat/servlet-releases/releases/download/v0.12.2/Servlet-0.12.2-arm64.zip",
-      "updateFeed": "https://github.com/hgoudat/servlet-releases/releases/download/v0.12.2/updates.json",
-      "publishedAt": "2026-10-13T18:44:20.992Z"
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-arm64.dmg",
+      "zipURL": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-arm64.zip",
+      "updateFeed": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/updates.json",
+      "publishedAt": "2026-10-13T19:36:45.785Z"
     },
     {
       "platform": "linux",
       "architecture": "x64",
-      "version": "0.12.2",
+      "version": "0.13.0",
       "available": true,
       "validated": true,
       "signed": false,
-      "sha256": "a017b67e71113594535a176c3d784ba227e112845e80828101b80be5acaabf30",
-      "size": 113365580,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.12.2/Servlet-0.12.2-linux-amd64.deb",
-      "publishedAt": "2026-10-13T18:44:20.992Z"
+      "sha256": "9629d084808b4184b36850696cf750583fc57ff1308499567ec82b739111d46f",
+      "size": 113474688,
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-linux-amd64.deb",
+      "publishedAt": "2026-10-13T19:36:45.785Z"
     },
     {
       "platform": "linux",
       "architecture": "x64",
-      "version": "0.12.2",
+      "version": "0.13.0",
       "available": true,
       "validated": true,
       "signed": false,
-      "sha256": "9ec3a63509eef694ed15ca0f784734b768601a0fd1b86e366709f944e9b950a8",
-      "size": 150153326,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.12.2/Servlet-0.12.2-linux-x86_64.AppImage",
-      "publishedAt": "2026-10-13T18:44:20.992Z"
+      "sha256": "4744ca1fe9d79ad1e5c9fddab3ad33be124efd76b328ef1568b16cc4135f6096",
+      "size": 150271863,
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-linux-x86_64.AppImage",
+      "publishedAt": "2026-10-13T19:36:45.785Z"
     },
     {
       "platform": "win32",
       "architecture": "x64",
-      "version": "0.12.2",
+      "version": "0.13.0",
       "available": false,
       "validated": true,
       "signed": false,
