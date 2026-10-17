@@ -2,65 +2,68 @@
   "schemaVersion": 1,
   "source": {
     "repository": "hgoudat/servlet-desktop",
-    "runId": 38454511400,
-    "headSHA": "dc4b18a2d29a9cbd1d30e19ff712728685e3af07"
+    "runId": 39040954368,
+    "headSHA": "8af149d029734932631e8bdb27c49c8453f2247e"
   },
   "releases": [
     {
       "available": true,
-      "version": "0.13.0",
+      "version": "0.13.1",
       "architecture": "arm64",
       "minimumMacOS": "13",
       "notarized": true,
       "teamId": "8V3C66NC5Z",
       "notarization": {
-        "app": "6e6e4f9e-b061-46ff-a4d2-80015bf4e2ad",
-        "dmg": "fd4f48dd-0da1-49c1-801e-484755d41ac1"
+        "app": "a172941a-5c6b-423d-95b6-763fa44bdd56",
+        "dmg": "373d003e-883a-43e1-83e7-2051ca2a83e2"
       },
-      "zipSHA256": "0b8f80e031d1e9ba94bc202eb8a44e053a319f673c56d4ef9c979dba003427a8",
-      "zipSize": 151909373,
-      "dmgSHA256": "c34f484caf7f323992a718152d3460e8857d6c665f57b64f1745a7a4b04864f7",
-      "dmgSize": 152442705,
+      "zipSHA256": "8974c578b9c2aa928da43135b218ce40ab790f11fed293789000521e3ef28d18",
+      "zipSize": 151908929,
+      "dmgSHA256": "bf00b8d9542daba335ff37b28c46e2adb2093a7bdf3c09cca39a2f2ad112788a",
+      "dmgSize": 152448515,
       "platform": "darwin",
       "signed": true,
       "validated": true,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-arm64.dmg",
-      "zipURL": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-arm64.zip",
-      "updateFeed": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/updates.json",
-      "publishedAt": "2026-10-13T19:36:45.785Z"
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.1/Servlet-0.13.1-arm64.dmg",
+      "zipURL": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.1/Servlet-0.13.1-arm64.zip",
+      "updateFeed": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.1/updates.json",
+      "publishedAt": "2026-10-17T16:42:39.425Z"
     },
     {
       "platform": "linux",
       "architecture": "x64",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "available": true,
       "validated": true,
       "signed": false,
-      "sha256": "9629d084808b4184b36850696cf750583fc57ff1308499567ec82b739111d46f",
-      "size": 113474688,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-linux-amd64.deb",
-      "publishedAt": "2026-10-13T19:36:45.785Z"
+      "sha256": "79a36eb334235ee1c0a45ce813acb543a9e4cffcc1b35bbe46f280d1115933b0",
+      "size": 113474624,
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.1/Servlet-0.13.1-linux-amd64.deb",
+      "publishedAt": "2026-10-17T16:42:39.425Z"
     },
     {
       "platform": "linux",
       "architecture": "x64",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "available": true,
       "validated": true,
       "signed": false,
-      "sha256": "4744ca1fe9d79ad1e5c9fddab3ad33be124efd76b328ef1568b16cc4135f6096",
-      "size": 150271863,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.0/Servlet-0.13.0-linux-x86_64.AppImage",
-      "publishedAt": "2026-10-13T19:36:45.785Z"
+      "sha256": "38804f2cc457d18bf43ca2db2b612d7b0756830790ce3d01af47f277a514cf81",
+      "size": 150271923,
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.13.1/Servlet-0.13.1-linux-x86_64.AppImage",
+      "publishedAt": "2026-10-17T16:42:39.425Z"
     },
     {
       "platform": "win32",
       "architecture": "x64",
-      "version": "0.13.0",
-      "available": false,
+      "version": "0.13.1",
+      "available": true,
       "validated": true,
-      "signed": false,
-      "message": "Windows signing is pending organization verification."
+      "signed": true,
+      "sha256": "5dac12953acd3d814020cac80f9019d573c9febfd58d7a3f3391e48ab3b46311",
+      "size": 130774744,
+      "url": "https://hajytovlwfqngnlcquic.supabase.co/storage/v1/object/public/servlet-releases/win32/x64/0.13.1/Servlet-0.13.1-win-x64.exe",
+      "publishedAt": "2026-10-17T16:42:39.425Z"
     }
   ]
 }
