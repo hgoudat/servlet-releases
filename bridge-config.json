@@ -4,5 +4,6 @@
   "sourceWorkflow": "desktop-release-build.yml",
   "distributionRepository": "hgoudat/servlet-releases",
   "appleTeamId": "8V3C66NC5Z",
-  "electronVersion": "44.7.0"
+  "electronVersion": "44.7.0",
+  "windowsReleaseBase": "https://hajytovlwfqngnlcquic.supabase.co/storage/v1/object/public/servlet-releases/win32/x64"
 }

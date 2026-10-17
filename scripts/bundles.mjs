@@ -112,6 +112,7 @@ export function releaseManifest(
   bundles,
   mac,
   publishedAt = new Date().toISOString(),
+  windows = null,
 ) {
   const source = matchBundles(bundles),
     version = source.version;
@@ -152,16 +153,40 @@ export function releaseManifest(
       url: root + artifact.filename,
       publishedAt,
     });
-  // Windows stays private until Artifact Signing is verified and implemented.
-  releases.push({
-    platform: "win32",
-    architecture: "x64",
-    version,
-    available: false,
-    validated: true,
-    signed: false,
-    message: "Windows signing is pending organization verification.",
-  });
+  // Signed Windows installers are published by the private Windows release
+  // workflow to the public bucket after an Authenticode check on Windows.
+  if (windows) {
+    if (
+      windows.version !== version ||
+      windows.url !==
+        `${config.windowsReleaseBase}/${version}/Servlet-${version}-win-x64.exe` ||
+      !/^[a-f0-9]{64}$/.test(windows.sha256) ||
+      !Number.isSafeInteger(windows.size) ||
+      windows.size <= 0
+    )
+      throw Error("Windows release evidence is incomplete.");
+    releases.push({
+      platform: "win32",
+      architecture: "x64",
+      version,
+      available: true,
+      validated: true,
+      signed: true,
+      sha256: windows.sha256,
+      size: windows.size,
+      url: windows.url,
+      publishedAt,
+    });
+  } else
+    releases.push({
+      platform: "win32",
+      architecture: "x64",
+      version,
+      available: false,
+      validated: true,
+      signed: false,
+      message: "The signed Windows installer for this version is not published yet.",
+    });
   return {
     schemaVersion: 1,
     source: {

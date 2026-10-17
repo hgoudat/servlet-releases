@@ -29,6 +29,33 @@ function release(tag) {
     throw Error("Cannot read the existing public release.");
   }
 }
+// The signed installer and SHA256SUMS published by servlet-desktop's Windows release workflow.
+async function windowsEvidence(version) {
+  const root = `${config.windowsReleaseBase}/${version}`;
+  const filename = `Servlet-${version}-win-x64.exe`;
+  const sums = await fetch(`${root}/SHA256SUMS`, {
+    redirect: "error",
+    signal: AbortSignal.timeout(30000),
+  });
+  if ([400, 404].includes(sums.status)) return null;
+  if (!sums.ok) throw Error("Cannot read the Windows release checksums.");
+  const line = (await sums.text())
+    .split("\n")
+    .find((l) => l.endsWith(`  ${filename}`));
+  const sha = line?.split("  ")[0];
+  if (!/^[a-f0-9]{64}$/.test(sha || "")) return null;
+  const head = await fetch(`${root}/${filename}`, {
+    method: "HEAD",
+    redirect: "error",
+    signal: AbortSignal.timeout(30000),
+  });
+  const size = Number(head.headers.get("content-length"));
+  if (!head.ok || !Number.isSafeInteger(size) || size <= 0)
+    throw Error("Cannot read the published Windows installer.");
+  const evidence = { version, sha256: sha, size, url: `${root}/${filename}` };
+  await verifyPublic(evidence.url, evidence);
+  return evidence;
+}
 async function fetchRun(id) {
   if (!sourceToken)
     throw Error(
@@ -125,7 +152,7 @@ async function discover() {
     if (process.env.GITHUB_STEP_SUMMARY)
       fs.appendFileSync(
         process.env.GITHUB_STEP_SUMMARY,
-        `## Release candidate ${candidate.tag}\n\nPrivate build: https://github.com/${config.sourceRepository}/actions/runs/${run.id}\n\nSource commit: \`${candidate.headSHA}\`\n\nMac and Linux downloads will be published after release approval and notarization. Windows remains withheld until signing is ready.\n`,
+        `## Release candidate ${candidate.tag}\n\nPrivate build: https://github.com/${config.sourceRepository}/actions/runs/${run.id}\n\nSource commit: \`${candidate.headSHA}\`\n\nMac and Linux downloads will be published after release approval and notarization. Windows is listed when its signed installer is published.\n`,
       );
     return;
   }
@@ -207,7 +234,14 @@ async function publish() {
     return;
   }
   const mac = JSON.parse(fs.readFileSync(path.join(out, "mac.json")));
-  const manifest = releaseManifest(config, bundles, mac);
+  const manifest = releaseManifest(
+    config,
+    bundles,
+    mac,
+    undefined,
+    await windowsEvidence(candidate.version),
+  );
+  const windows = manifest.releases.find((r) => r.platform === "win32");
   const files = [
     `Servlet-${candidate.version}-arm64.dmg`,
     `Servlet-${candidate.version}-arm64.zip`,
@@ -242,7 +276,7 @@ async function publish() {
     target_commitish: process.env.GITHUB_SHA,
     name: `Servlet ${candidate.version}`,
     draft: true,
-    body: `macOS: Developer ID signed and notarized. Linux: validated .deb and AppImage. Windows signing is pending; no Windows installer is published.\n\nSource build ${candidate.runId}, commit ${candidate.headSHA}.`,
+    body: `macOS: Developer ID signed and notarized. Linux: validated .deb and AppImage. ${windows.available ? `Windows: Artifact Signing signed installer, ${windows.url}` : "Windows: no signed installer is published for this version."}\n\nSource build ${candidate.runId}, commit ${candidate.headSHA}.`,
   };
   if (!existing) existing = own("releases", { method: "POST", body });
   execFileSync(
