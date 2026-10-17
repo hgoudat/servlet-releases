@@ -174,6 +174,26 @@ test("platform builds share a source commit; Windows stays withheld while signed
   assert.throws(() =>
     releaseManifest(config, builds, { ...mac, notarized: false }),
   );
+  const windows = {
+    version: "0.11.3",
+    sha256: "b".repeat(64),
+    size: 42,
+    url: `${config.windowsReleaseBase}/0.11.3/Servlet-0.11.3-win-x64.exe`,
+  };
+  const signed = releaseManifest(config, builds, mac, undefined, windows);
+  assert.deepEqual(
+    (({ available, signed, sha256, size, url }) => ({ available, signed, sha256, size, url }))(
+      signed.releases.find((r) => r.platform === "win32"),
+    ),
+    { available: true, signed: true, sha256: windows.sha256, size: 42, url: windows.url },
+  );
+  for (const bad of [
+    { ...windows, version: "0.11.2" },
+    { ...windows, url: "https://example.com/Servlet-0.11.3-win-x64.exe" },
+    { ...windows, sha256: "nothex" },
+    { ...windows, size: 0 },
+  ])
+    assert.throws(() => releaseManifest(config, builds, mac, undefined, bad));
 });
 test("private artifact credentials are never forwarded to storage redirects", async (t) => {
   const root = fs.mkdtempSync(
