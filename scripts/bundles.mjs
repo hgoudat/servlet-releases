@@ -107,6 +107,61 @@ export function matchBundles(bundles) {
     throw Error("Desktop builds do not share one source version.");
   return first;
 }
+function windowsRelease(config, version, windows, publishedAt) {
+  if (
+    windows.version !== version ||
+    windows.url !==
+      `${config.windowsReleaseBase}/${version}/Servlet-${version}-win-x64.exe` ||
+    !/^[a-f0-9]{64}$/.test(windows.sha256) ||
+    !Number.isSafeInteger(windows.size) ||
+    windows.size <= 0
+  )
+    throw Error("Windows release evidence is incomplete.");
+  return {
+    platform: "win32",
+    architecture: "x64",
+    version,
+    available: true,
+    validated: true,
+    signed: true,
+    sha256: windows.sha256,
+    size: windows.size,
+    url: windows.url,
+    publishedAt,
+  };
+}
+// True when the feed does not yet offer a signed Windows installer for this version.
+export function needsWindows(manifest, version) {
+  const entry = manifest?.releases?.find(
+    (r) => r.platform === "win32" && r.version === version,
+  );
+  return !entry?.available;
+}
+// The Windows installer is often signed and published after the Mac and Linux release. The
+// GitHub release is immutable, so only the feed's Windows entry is replaced; the other entries
+// and the source build are kept exactly as published.
+export function addWindows(
+  manifest,
+  config,
+  windows,
+  publishedAt = new Date().toISOString(),
+) {
+  const version = manifest?.releases?.[0]?.version;
+  if (
+    !versionOK(version || "") ||
+    manifest.releases.some((r) => r.version !== version)
+  )
+    throw Error("Release manifest is inconsistent.");
+  if (!needsWindows(manifest, version))
+    throw Error("This version already lists a Windows installer.");
+  return {
+    ...manifest,
+    releases: [
+      ...manifest.releases.filter((r) => r.platform !== "win32"),
+      windowsRelease(config, version, windows, publishedAt),
+    ],
+  };
+}
 export function releaseManifest(
   config,
   bundles,
@@ -156,27 +211,7 @@ export function releaseManifest(
   // Signed Windows installers are published by the private Windows release
   // workflow to the public bucket after an Authenticode check on Windows.
   if (windows) {
-    if (
-      windows.version !== version ||
-      windows.url !==
-        `${config.windowsReleaseBase}/${version}/Servlet-${version}-win-x64.exe` ||
-      !/^[a-f0-9]{64}$/.test(windows.sha256) ||
-      !Number.isSafeInteger(windows.size) ||
-      windows.size <= 0
-    )
-      throw Error("Windows release evidence is incomplete.");
-    releases.push({
-      platform: "win32",
-      architecture: "x64",
-      version,
-      available: true,
-      validated: true,
-      signed: true,
-      sha256: windows.sha256,
-      size: windows.size,
-      url: windows.url,
-      publishedAt,
-    });
+    releases.push(windowsRelease(config, version, windows, publishedAt));
   } else
     releases.push({
       platform: "win32",
