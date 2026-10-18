@@ -10,6 +10,8 @@ import {
   squirrelFeed,
   sha256,
   newer,
+  needsWindows,
+  addWindows,
 } from "./bundles.mjs";
 const config = JSON.parse(fs.readFileSync("bridge-config.json"));
 const sourceToken = process.env.PRIVATE_ARTIFACT_READ_TOKEN;
@@ -140,7 +142,12 @@ async function discover() {
     if (
       existing &&
       !existing.draft &&
-      pointer.manifest.source?.runId === candidate.runId
+      pointer.manifest.source?.runId === candidate.runId &&
+      // A Windows installer published after this release still needs listing in the feed.
+      !(
+        needsWindows(pointer.manifest, candidate.version) &&
+        (await windowsEvidence(candidate.version))
+      )
     ) {
       output("needed", "false");
       return;
@@ -230,7 +237,10 @@ async function publish() {
           : [{ url: entry.url, size: entry.size, sha256: entry.sha256 }];
       for (const record of records) await verifyPublic(record.url, record);
     }
-    await promote(saved, previous);
+    const windows = needsWindows(saved, candidate.version)
+      ? await windowsEvidence(candidate.version)
+      : null;
+    await promote(windows ? addWindows(saved, config, windows) : saved, previous);
     return;
   }
   const mac = JSON.parse(fs.readFileSync(path.join(out, "mac.json")));

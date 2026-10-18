@@ -270,3 +270,49 @@ test("public download verification rejects changed files and foreign redirects",
     /Untrusted/,
   );
 });
+test("a Windows installer published after the release is added to the feed without touching other entries", async () => {
+  const { addWindows, needsWindows } = await import("../scripts/bundles.mjs");
+  const builds = [
+    bundle("darwin", "Servlet-0.11.3-unsigned-arm64.zip"),
+    bundle("linux", "Servlet-0.11.3-linux-amd64.deb"),
+    bundle("win32", "Servlet-0.11.3-win-x64.exe"),
+  ];
+  const mac = {
+    available: true,
+    notarized: true,
+    teamId: config.appleTeamId,
+    version: "0.11.3",
+    notarization: { app: "accepted-fixture", dmg: "accepted-fixture" },
+    zipSHA256: "a".repeat(64),
+    zipSize: 1,
+  };
+  const published = releaseManifest(config, builds, mac, "2026-10-18T02:44:00Z");
+  const windows = {
+    version: "0.11.3",
+    sha256: "c".repeat(64),
+    size: 130796880,
+    url: `${config.windowsReleaseBase}/0.11.3/Servlet-0.11.3-win-x64.exe`,
+  };
+  assert.equal(needsWindows(published, "0.11.3"), true);
+  const updated = addWindows(published, config, windows, "2026-10-18T14:30:00Z");
+  assert.equal(needsWindows(updated, "0.11.3"), false);
+  const entry = updated.releases.find((r) => r.platform === "win32");
+  assert.deepEqual(
+    (({ available, signed, sha256, size, url, version }) => ({ available, signed, sha256, size, url, version }))(entry),
+    { available: true, signed: true, sha256: windows.sha256, size: windows.size, url: windows.url, version: "0.11.3" },
+  );
+  // Mac, Linux and the source build are exactly what was published.
+  assert.deepEqual(
+    updated.releases.filter((r) => r.platform !== "win32"),
+    published.releases.filter((r) => r.platform !== "win32"),
+  );
+  assert.deepEqual(updated.source, published.source);
+  assert.equal(updated.releases.filter((r) => r.platform === "win32").length, 1);
+  // Never overwrite a listed installer, and reject evidence for another version or location.
+  assert.throws(() => addWindows(updated, config, windows), /already lists/);
+  assert.throws(() => addWindows(published, config, { ...windows, version: "0.11.2" }), /incomplete/);
+  assert.throws(() => addWindows(published, config, { ...windows, url: "https://example.com/x.exe" }), /incomplete/);
+  assert.throws(() => addWindows({ ...published, releases: [...published.releases, { ...published.releases[0], version: "9.9.9" }] }, config, windows), /inconsistent/);
+  // The published manifest itself is not modified.
+  assert.equal(needsWindows(published, "0.11.3"), true);
+});
