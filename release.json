@@ -2,68 +2,65 @@
   "schemaVersion": 1,
   "source": {
     "repository": "hgoudat/servlet-desktop",
-    "runId": 39089963717,
-    "headSHA": "04312d66a53423c1b9c53785d323c69004c6cd49"
+    "runId": 39144477461,
+    "headSHA": "d71cf1df198dbad07d9d016ede5f17e673d76fd0"
   },
   "releases": [
     {
       "available": true,
-      "version": "0.14.1",
+      "version": "0.14.2",
       "architecture": "arm64",
       "minimumMacOS": "13",
       "notarized": true,
       "teamId": "8V3C66NC5Z",
       "notarization": {
-        "app": "b62f4f08-e586-4bb9-b63e-4453a2f57392",
-        "dmg": "25b33799-f57c-490d-998c-f5486f644e01"
+        "app": "09b0a826-f63e-4166-9818-f82009c45e41",
+        "dmg": "35f8a17b-e9a6-494e-a9fc-0e6da051c07b"
       },
-      "zipSHA256": "4368f1ecb2da135bd863ff29a57d420d677e8769941810cb7c4aedeb03cfcb69",
-      "zipSize": 151918256,
-      "dmgSHA256": "bd46828269a4712477140b7340d4579b3cae66bf953d3355419e2b83f4322f00",
-      "dmgSize": 152469711,
+      "zipSHA256": "86f280dfe1609e3a8955360e374accf6998e34ad4a18b6bb78f6222bb6bdcbc3",
+      "zipSize": 151920235,
+      "dmgSHA256": "9d4a2c41855c2b193dc35ba0587866bb1c6af52424e7ff6b7e7cd7fcea6b9f23",
+      "dmgSize": 152471222,
       "platform": "darwin",
       "signed": true,
       "validated": true,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.1/Servlet-0.14.1-arm64.dmg",
-      "zipURL": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.1/Servlet-0.14.1-arm64.zip",
-      "updateFeed": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.1/updates.json",
-      "publishedAt": "2026-10-18T03:02:03.230Z"
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.2/Servlet-0.14.2-arm64.dmg",
+      "zipURL": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.2/Servlet-0.14.2-arm64.zip",
+      "updateFeed": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.2/updates.json",
+      "publishedAt": "2026-10-18T16:51:09.649Z"
     },
     {
       "platform": "linux",
       "architecture": "x64",
-      "version": "0.14.1",
+      "version": "0.14.2",
       "available": true,
       "validated": true,
       "signed": false,
-      "sha256": "81f0663421950533253d0027f5a3fbfd30581cd215904908feae6f9b2da51fda",
-      "size": 113483144,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.1/Servlet-0.14.1-linux-amd64.deb",
-      "publishedAt": "2026-10-18T03:02:03.230Z"
+      "sha256": "1e193fc8005fe69ab4d6706e3a81a5ec7dddb723f47fb7d63da1f4690f747be4",
+      "size": 113484340,
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.2/Servlet-0.14.2-linux-amd64.deb",
+      "publishedAt": "2026-10-18T16:51:09.649Z"
     },
     {
       "platform": "linux",
       "architecture": "x64",
-      "version": "0.14.1",
+      "version": "0.14.2",
       "available": true,
       "validated": true,
       "signed": false,
-      "sha256": "a2d7a8420ab0c7a6df4772b9680d039f9628c30eadf89980165b1bfe8e539ea3",
-      "size": 150280377,
-      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.1/Servlet-0.14.1-linux-x86_64.AppImage",
-      "publishedAt": "2026-10-18T03:02:03.230Z"
+      "sha256": "49a474c8fd58979261cfcf3a3d2e85905db24fd1eeb5f62aa57cb377e43dd0c8",
+      "size": 150280412,
+      "url": "https://github.com/hgoudat/servlet-releases/releases/download/v0.14.2/Servlet-0.14.2-linux-x86_64.AppImage",
+      "publishedAt": "2026-10-18T16:51:09.649Z"
     },
     {
       "platform": "win32",
       "architecture": "x64",
-      "version": "0.14.1",
-      "available": true,
+      "version": "0.14.2",
+      "available": false,
       "validated": true,
-      "signed": true,
-      "sha256": "cc61a3a84a132a1c36607f9b79190d34d4797943a5f643ffaad4311acc0e3a44",
-      "size": 130796880,
-      "url": "https://hajytovlwfqngnlcquic.supabase.co/storage/v1/object/public/servlet-releases/win32/x64/0.14.1/Servlet-0.14.1-win-x64.exe",
-      "publishedAt": "2026-10-18T15:10:04.383Z"
+      "signed": false,
+      "message": "The signed Windows installer for this version is not published yet."
     }
   ]
 }
