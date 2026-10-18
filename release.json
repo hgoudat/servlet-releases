@@ -57,10 +57,13 @@
       "platform": "win32",
       "architecture": "x64",
       "version": "0.14.2",
-      "available": false,
+      "available": true,
       "validated": true,
-      "signed": false,
-      "message": "The signed Windows installer for this version is not published yet."
+      "signed": true,
+      "sha256": "3672bbac3a16c81d862f250eb2a3220be7c0375760935f91f61f980453669a69",
+      "size": 130786928,
+      "url": "https://hajytovlwfqngnlcquic.supabase.co/storage/v1/object/public/servlet-releases/win32/x64/0.14.2/Servlet-0.14.2-win-x64.exe",
+      "publishedAt": "2026-10-18T17:38:31.947Z"
     }
   ]
 }
