@@ -316,3 +316,14 @@ test("a Windows installer published after the release is added to the feed witho
   // The published manifest itself is not modified.
   assert.equal(needsWindows(published, "0.11.3"), true);
 });
+test("scheduled discovery waits for an automated Windows build, but never forever", async () => {
+  const { waitForWindows } = await import("../scripts/bundles.mjs");
+  const now = Date.parse("2026-10-18T12:00:00Z");
+  const base = { explicit: false, published: false, windowsReady: false, now };
+  assert.equal(waitForWindows({ ...base, builtAt: "2026-10-18T11:30:00Z" }), true);
+  assert.equal(waitForWindows({ ...base, builtAt: "2026-10-18T05:59:00Z" }), false, "gives up after six hours");
+  assert.equal(waitForWindows({ ...base, windowsReady: true, builtAt: "2026-10-18T11:30:00Z" }), false);
+  assert.equal(waitForWindows({ ...base, explicit: true, builtAt: "2026-10-18T11:30:00Z" }), false);
+  assert.equal(waitForWindows({ ...base, published: true, builtAt: "2026-10-18T11:30:00Z" }), false);
+  assert.equal(waitForWindows({ ...base, builtAt: undefined }), false, "unknown build time never blocks");
+});

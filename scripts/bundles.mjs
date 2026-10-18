@@ -130,6 +130,24 @@ function windowsRelease(config, version, windows, publishedAt) {
     publishedAt,
   };
 }
+// Automated releases sign and upload Windows in parallel with the Mac and Linux build, so a
+// scheduled discovery waits for it (up to `hours` after the build finished) to ask for a single
+// approval covering every platform. An explicit request, an already published release or a
+// Windows build that never arrived does not wait; a later installer is still listed afterwards.
+export const WINDOWS_WAIT_HOURS = 6;
+export function waitForWindows({
+  explicit,
+  published,
+  windowsReady,
+  builtAt,
+  now = Date.now(),
+  hours = WINDOWS_WAIT_HOURS,
+}) {
+  if (explicit || published || windowsReady) return false;
+  const built = Date.parse(builtAt);
+  if (!Number.isFinite(built)) return false;
+  return now - built < hours * 60 * 60 * 1000;
+}
 // True when the feed does not yet offer a signed Windows installer for this version.
 export function needsWindows(manifest, version) {
   const entry = manifest?.releases?.find(

@@ -12,6 +12,8 @@ import {
   newer,
   needsWindows,
   addWindows,
+  waitForWindows,
+  WINDOWS_WAIT_HOURS,
 } from "./bundles.mjs";
 const config = JSON.parse(fs.readFileSync("bridge-config.json"));
 const sourceToken = process.env.PRIVATE_ARTIFACT_READ_TOKEN;
@@ -150,6 +152,23 @@ async function discover() {
       )
     ) {
       output("needed", "false");
+      return;
+    }
+    const published = !!existing && !existing.draft;
+    if (
+      waitForWindows({
+        explicit: !!explicit,
+        published,
+        windowsReady: !!(await windowsEvidence(candidate.version)),
+        builtAt: run.updated_at || run.created_at,
+      })
+    ) {
+      output("needed", "false");
+      if (process.env.GITHUB_STEP_SUMMARY)
+        fs.appendFileSync(
+          process.env.GITHUB_STEP_SUMMARY,
+          `## Waiting for Windows\n\n${candidate.tag} is built. Approval is requested once its signed Windows installer is uploaded, or ${WINDOWS_WAIT_HOURS} hours after the build without it.\n`,
+        );
       return;
     }
     output("needed", "true");
